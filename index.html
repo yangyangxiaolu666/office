@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Office效率工具导航站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            line-height: 1.6;
+            background: #f0f3f9;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin: 30px 0;
+            font-size: 2.5em;
+        }
+
+        h2 {
+            color: #34495e;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+            margin: 25px 0 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        a {
+            color: #2980b9;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #e74c3c;
+        }
+
+        .link-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            background: #f8fafc;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .link-item:hover {
+            background: #edf2f7;
+        }
+
+        .link-title {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .description {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-success {
+            background: #2ecc71;
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .action-buttons {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input, 
+        .form-group textarea, 
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .add-section-btn {
+            margin-left: 10px;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .action-buttons {
+                position: static;
+                margin-top: 10px;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Office效率工具导航 <button class="btn btn-success" id="addNewSection">添加分类</button></h1>
+
+        <div id="sectionsContainer">
+            <!-- 内容将通过JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <!-- 添加/编辑工具模态框 -->
+    <div class="modal" id="toolModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">添加新工具</h3>
+            <form id="toolForm">
+                <input type="hidden" id="toolId">
+                <input type="hidden" id="sectionId">
+                <div class="form-group">
+                    <label for="toolCategory">分类</label>
+                    <select id="toolCategory" required>
+                        <option value="办公套件">办公套件</option>
+                        <option value="Word工具">Word工具</option>
+                        <option value="Excel工具">Excel工具</option>
+                        <option value="PPT资源">PPT资源</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="toolName">工具名称</label>
+                    <input type="text" id="toolName" required>
+                </div>
+                <div class="form-group">
+                    <label for="toolUrl">工具链接</label>
+                    <input type="url" id="toolUrl" required>
+                </div>
+                <div class="form-group">
+                    <label for="toolDescription">工具描述 (可选)</label>
+                    <textarea id="toolDescription"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" id="cancelTool">取消</button>
+                    <button type="submit" class="btn btn-success">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加/编辑分类模态框 -->
+    <div class="modal" id="sectionModal">
+        <div class="modal-content">
+            <h3 id="sectionModalTitle">添加新分类</h3>
+            <form id="sectionForm">
+                <input type="hidden" id="editSectionId">
+                <div class="form-group">
+                    <label for="sectionName">分类名称</label>
+                    <input type="text" id="sectionName" required>
+                </div>
+                <div class="form-group">
+                    <label for="sectionEmoji">表情符号 (可选)</label>
+                    <input type="text" id="sectionEmoji" placeholder="例如: 📦">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" id="cancelSection">取消</button>
+                    <button type="submit" class="btn btn-success">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 初始数据
+        let navData = {
+            sections: [
+                {
+                    id: 'section1',
+                    name: '办公套件',
+                    emoji: '📦',
+                    tools: [
+                        {
+                            id: 'tool1',
+                            name: 'WPS办公套件',
+                            url: 'https://www.wps.cn/',
+                            description: '推荐收藏44篇高效技巧文章：https://mp.weixin.qq.com/s/NlaN5RCepXlycLS_CGUNlnw'
+                        },
+                        {
+                            id: 'tool2',
+                            name: 'Microsoft Office',
+                            url: 'https://www.microsoft.com/zh-cn/microsoft-365/products-apps-services',
+                            description: '官方下载'
+                        },
+                        {
+                            id: 'tool3',
+                            name: 'Office官方模板',
+                            url: 'https://www.officeplus.cn/',
+                            description: ''
+                        }
+                    ]
+                },
+                {
+                    id: 'section2',
+                    name: 'Word工具',
+                    emoji: '📄',
+                    tools: [
+                        {
+                            id: 'tool4',
+                            name: 'ChatDOC（智能文档助手）',
+                            url: 'https://chatdoc.com/',
+                            description: '基于AI的文档阅读助手，支持PDF信息提取与智能问答'
+                        },
+                        {
+                            id: 'tool5',
+                            name: 'TLDR This（文本摘要工具）',
+                            url: 'https://tldrthis.com/',
+                            description: '将长文本自动概括为简洁易懂的内容'
+                        }
+                    ]
+                },
+                {
+                    id: 'section3',
+                    name: 'Excel工具',
+                    emoji: '📊',
+                    tools: [
+                        {
+                            id: 'tool6',
+                            name: 'Excel Formularizer',
+                            url: 'https://excelformularizer.com/',
+                            description: '公式自动生成与解释工具'
+                        },
+                        {
+                            id: 'tool7',
+                            name: 'FormX（智能数据提取）',
+                            url: 'https://formx.ai/',
+                            description: '基于OCR和AI的文档数据转Excel工具'
+                        }
+                    ]
+                },
+                {
+                    id: 'section4',
+                    name: 'PPT资源',
+                    emoji: '🎨',
+                    tools: [
+                        {
+                            id: 'tool8',
+                            name: '演示星球（高质量模板）',
+                            url: 'https://pop-opt.com/',
+                            description: '免费高质量PPT模板，附带设计规范说明'
+                        },
+                        {
+                            id: 'tool9',
+                            name: '优品PPT',
+                            url: 'https://www.ypppt.com/',
+                            description: ''
+                        },
+                        {
+                            id: 'tool10',
+                            name: 'PPT超级市场',
+                            url: 'https://www.pptsupermarket.com/',
+                            description: '完全免费的高质量PPT模板下载站'
+                        },
+                        {
+                            id: 'tool11',
+                            name: 'PPT课件网',
+                            url: 'https://www.lppt.com/kejian/',
+                            description: ''
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // DOM元素
+        const sectionsContainer = document.getElementById('sectionsContainer');
+        const toolModal = document.getElementById('toolModal');
+        const sectionModal = document.getElementById('sectionModal');
+        const toolForm = document.getElementById('toolForm');
+        const sectionForm = document.getElementById('sectionForm');
+        const addNewSectionBtn = document.getElementById('addNewSection');
+
+        // 从本地存储加载数据
+        function loadData() {
+            const savedData = localStorage.getItem('navData');
+            if (savedData) {
+                navData = JSON.parse(savedData);
+            }
+            renderSections();
+        }
+
+        // 保存数据到本地存储
+        function saveData() {
+            localStorage.setItem('navData', JSON.stringify(navData));
+        }
+
+        // 渲染所有分类
+        function renderSections() {
+            sectionsContainer.innerHTML = '';
+            
+            navData.sections.forEach(section => {
+                const sectionElement = document.createElement('section');
+                
+                const sectionHeader = document.createElement('h2');
+                sectionHeader.innerHTML = `${section.emoji || ''} ${section.name}`;
+                
+                // 添加分类操作按钮
+                const sectionActions = document.createElement('div');
+                sectionActions.className = 'section-actions';
+                
+                const addToolBtn = document.createElement('button');
+                addToolBtn.className = 'btn btn-sm btn-success';
+                addToolBtn.textContent = '添加工具';
+                addToolBtn.onclick = () => openToolModal(null, section.id);
+                
+                const editSectionBtn = document.createElement('button');
+                editSectionBtn.className = 'btn btn-sm';
+                editSectionBtn.textContent = '编辑';
+                editSectionBtn.onclick = () => openSectionModal(section);
+                
+                const deleteSectionBtn = document.createElement('button');
+                deleteSectionBtn.className = 'btn btn-sm btn-danger';
+                deleteSectionBtn.textContent = '删除';
+                deleteSectionBtn.onclick = () => deleteSection(section.id);
+                
+                sectionActions.appendChild(addToolBtn);
+                sectionActions.appendChild(editSectionBtn);
+                sectionActions.appendChild(deleteSectionBtn);
+                sectionHeader.appendChild(sectionActions);
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                section.tools.forEach(tool => {
+                    const toolElement = document.createElement('div');
+                    toolElement.className = 'link-item';
+                    
+                    const title = document.createElement('span');
+                    title.className = 'link-title';
+                    title.textContent = tool.name;
+                    
+                    const url = document.createElement('a');
+                    url.href = tool.url;
+                    url.target = '_blank';
+                    url.textContent = tool.url;
+                    
+                    const description = document.createElement('div');
+                    description.className = 'description';
+                    description.textContent = tool.description;
+                    
+                    // 添加操作按钮
+                    const actions = document.createElement('div');
+                    actions.className = 'action-buttons';
+                    
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'btn btn-sm';
+                    editBtn.textContent = '编辑';
+                    editBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        openToolModal(tool, section.id);
+                    };
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn btn-sm btn-danger';
+                    deleteBtn.textContent = '删除';
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        deleteTool(section.id, tool.id);
+                    };
+                    
+                    actions.appendChild(editBtn);
+                    actions.appendChild(deleteBtn);
+                    
+                    toolElement.appendChild(title);
+                    toolElement.appendChild(url);
+                    if (tool.description) {
+                        toolElement.appendChild(description);
+                    }
+                    toolElement.appendChild(actions);
+                    
+                    card.appendChild(toolElement);
+                });
+                
+                sectionElement.appendChild(sectionHeader);
+                sectionElement.appendChild(card);
+                sectionsContainer.appendChild(sectionElement);
+            });
+        }
+
+        // 打开工具模态框
+        function openToolModal(tool, sectionId) {
+            const modalTitle = document.getElementById('modalTitle');
+            const toolIdInput = document.getElementById('toolId');
+            const sectionIdInput = document.getElementById('sectionId');
+            const toolNameInput = document.getElementById('toolName');
+            const toolUrlInput = document.getElementById('toolUrl');
+            const toolDescriptionInput = document.getElementById('toolDescription');
+            const toolCategoryInput = document.getElementById('toolCategory');
+            
+            if (tool) {
+                // 编辑模式
+                modalTitle.textContent = '编辑工具';
+                toolIdInput.value = tool.id;
+                sectionIdInput.value = sectionId;
+                toolNameInput.value = tool.name;
+                toolUrlInput.value = tool.url;
+                toolDescriptionInput.value = tool.description || '';
+                
+                // 设置分类
+                const section = navData.sections.find(s => s.id === sectionId);
+                if (section) {
+                    toolCategoryInput.value = section.name;
+                }
+            } else {
+                // 添加模式
+                modalTitle.textContent = '添加新工具';
+                toolIdInput.value = '';
+                sectionIdInput.value = sectionId;
+                toolNameInput.value = '';
+                toolUrlInput.value = '';
+                toolDescriptionInput.value = '';
+                
+                // 设置分类为当前分类
+                const section = navData.sections.find(s => s.id === sectionId);
+                if (section) {
+                    toolCategoryInput.value = section.name;
+                }
+            }
+            
+            toolModal.style.display = 'flex';
+        }
+
+        // 打开分类模态框
+        function openSectionModal(section) {
+            const modalTitle = document.getElementById('sectionModalTitle');
+            const editSectionIdInput = document.getElementById('editSectionId');
+            const sectionNameInput = document.getElementById('sectionName');
+            const sectionEmojiInput = document.getElementById('sectionEmoji');
+            
+            if (section) {
+                // 编辑模式
+                modalTitle.textContent = '编辑分类';
+                editSectionIdInput.value = section.id;
+                sectionNameInput.value = section.name;
+                sectionEmojiInput.value = section.emoji || '';
+            } else {
+                // 添加模式
+                modalTitle.textContent = '添加新分类';
+                editSectionIdInput.value = '';
+                sectionNameInput.value = '';
+                sectionEmojiInput.value = '';
+            }
+            
+            sectionModal.style.display = 'flex';
+        }
+
+        // 保存工具
+        function saveTool(event) {
+            event.preventDefault();
+            
+            const toolId = document.getElementById('toolId').value;
+            const sectionId = document.getElementById('sectionId').value;
+            const toolName = document.getElementById('toolName').value;
+            const toolUrl = document.getElementById('toolUrl').value;
+            const toolDescription = document.getElementById('toolDescription').value;
+            const toolCategory = document.getElementById('toolCategory').value;
+            
+            const section = navData.sections.find(s => s.id === sectionId);
+            
+            if (!section) return;
+            
+            if (toolId) {
+                // 更新现有工具
+                const toolIndex = section.tools.findIndex(t => t.id === toolId);
+                if (toolIndex !== -1) {
+                    section.tools[toolIndex] = {
+                        id: toolId,
+                        name: toolName,
+                        url: toolUrl,
+                        description: toolDescription
+                    };
+                }
+            } else {
+                // 添加新工具
+                const newTool = {
+                    id: 'tool' + Date.now(),
+                    name: toolName,
+                    url: toolUrl,
+                    description: toolDescription
+                };
+                section.tools.push(newTool);
+            }
+            
+            // 如果分类改变了，移动到新分类
+            if (section.name !== toolCategory) {
+                const newSection = navData.sections.find(s => s.name === toolCategory);
+                if (newSection) {
+                    const toolToMove = toolId 
+                        ? section.tools.find(t => t.id === toolId)
+                        : section.tools[section.tools.length - 1];
+                    
+                    if (toolToMove) {
+                        newSection.tools.push(toolToMove);
+                        if (toolId) {
+                            section.tools = section.tools.filter(t => t.id !== toolId);
+                        } else {
+                            section.tools.pop();
+                        }
+                    }
+                }
+            }
+            
+            saveData();
+            renderSections();
+            toolModal.style.display = 'none';
+        }
+
+        // 保存分类
+        function saveSection(event) {
+            event.preventDefault();
+            
+            const sectionId = document.getElementById('editSectionId').value;
+            const sectionName = document.getElementById('sectionName').value;
+            const sectionEmoji = document.getElementById('sectionEmoji').value;
+            
+            if (sectionId) {
+                // 更新现有分类
+                const sectionIndex = navData.sections.findIndex(s => s.id === sectionId);
+                if (sectionIndex !== -1) {
+                    navData.sections[sectionIndex].name = sectionName;
+                    navData.sections[sectionIndex].emoji = sectionEmoji || '';
+                }
+            } else {
+                // 添加新分类
+                const newSection = {
+                    id: 'section' + Date.now(),
+                    name: sectionName,
+                    emoji: sectionEmoji || '',
+                    tools: []
+                };
+                navData.sections.push(newSection);
+            }
+            
+            saveData();
+            renderSections();
+            sectionModal.style.display = 'none';
+        }
+
+        // 删除工具
+        function deleteTool(sectionId, toolId) {
+            if (confirm('确定要删除这个工具吗？')) {
+                const section = navData.sections.find(s => s.id === sectionId);
+                if (section) {
+                    section.tools = section.tools.filter(t => t.id !== toolId);
+                    saveData();
+                    renderSections();
+                }
+            }
+        }
+
+        // 删除分类
+        function deleteSection(sectionId) {
+            const section = navData.sections.find(s => s.id === sectionId);
+            if (!section) return;
+            
+            if (section.tools.length > 0) {
+                if (!confirm('该分类下还有工具，确定要删除整个分类吗？')) {
+                    return;
+                }
+            } else {
+                if (!confirm('确定要删除这个分类吗？')) {
+                    return;
+                }
+            }
+            
+            navData.sections = navData.sections.filter(s => s.id !== sectionId);
+            saveData();
+            renderSections();
+        }
+
+        // 关闭模态框
+        function closeModal(modal) {
+            modal.style.display = 'none';
+        }
+
+        // 事件监听
+        document.getElementById('cancelTool').addEventListener('click', () => closeModal(toolModal));
+        document.getElementById('cancelSection').addEventListener('click', () => closeModal(sectionModal));
+        toolForm.addEventListener('submit', saveTool);
+        sectionForm.addEventListener('submit', saveSection);
+        addNewSectionBtn.addEventListener('click', () => openSectionModal(null));
+
+        // 点击模态框外部关闭
+        window.addEventListener('click', (event) => {
+            if (event.target === toolModal) {
+                closeModal(toolModal);
+            }
+            if (event.target === sectionModal) {
+                closeModal(sectionModal);
+            }
+        });
+
+        // 初始化
+        loadData();
+    </script>
+</body>
+</html>
